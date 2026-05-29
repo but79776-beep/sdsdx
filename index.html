@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="he" dir="rtl">
 
 <head>
@@ -122,7 +123,7 @@ display:none;
 <body>
 
 <div class="header">
-₿ Crypto Shop Dosa PRO
+₿ Crypto Shop Dosa
 </div>
 
 <div class="container">
@@ -140,35 +141,32 @@ display:none;
 <h2>👤 לקוח</h2>
 <input id="customerName" placeholder="שם מלא">
 <input id="customerEmail" placeholder="אימייל">
-<button class="buy" onclick="showCustomer()">👤 הצג פרטי לקוח</button>
 </div>
 
 <div class="card">
 <h2>🛒 עגלה</h2>
 <div id="cart"></div>
 <div class="total" id="total">סה״כ: $0</div>
+
 <button class="clear" onclick="clearCart()">נקה עגלה</button>
 </div>
 
+<!-- STATUS -->
 <div class="card">
 <h2>📦 סטטוס הזמנה</h2>
 <div id="orderStatus" class="empty">אין הזמנה פעילה</div>
 </div>
 
+<!-- PAYMENT -->
 <div class="card">
 <h2>₿ תשלום</h2>
 
-<div id="paymentBox">אין הזמנה</div>
+<div id="paymentBox">אין תשלום פעיל</div>
 
-<div class="status">
-להמשך תשלום יש לשלם ב-Zengo ולאחר מכן לשלוח צילום מסך לגימייל
-</div>
-
-<button class="buy" onclick="checkout()">💳 בצע הזמנה</button>
-<button class="buy" onclick="copyReceipt()">📋 העתק קבלה</button>
-<button class="pay" onclick="downloadReceipt()">📸 הורד קבלה</button>
-<button class="buy" onclick="sendGmail()">📧 Gmail</button>
-<button class="pay" onclick="openZengo()">🚀 Zengo</button>
+<button class="buy" onclick="copyReceipt()">📋 קבלה</button>
+<button class="pay" onclick="downloadReceipt()">📸 צילום</button>
+<button class="buy" onclick="sendReceiptGmail()">📧 Gmail</button>
+<button class="pay" onclick="payWithZengo()">🚀 Zengo</button>
 
 </div>
 
@@ -185,10 +183,10 @@ let products=[
 {id:3,name:"עכבר",price:35,img:"https://images.unsplash.com/photo-1527814050087-3793815479db?w=500"}
 ];
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let lastOrder = null;
+let cart=[];
+let lastOrder=null;
 
-/* PRODUCTS */
+/* RENDER */
 function renderProducts(){
 let html="";
 products.forEach(p=>{
@@ -197,29 +195,26 @@ html+=`
 <img src="${p.img}">
 <h3>${p.name}</h3>
 <div class="price">$${p.price}</div>
-<button class="buy" onclick="add(${p.id})">הוסף</button>
+<button class="buy" onclick="addToCart(${p.id})">הוסף</button>
 </div>`;
 });
 document.getElementById("products").innerHTML=html;
 }
 
-/* ADD */
-function add(id){
-let p=products.find(x=>x.id===id);
-let ex=cart.find(x=>x.id===id);
-
-if(ex){
-ex.qty++;
-}else{
-cart.push({...p,qty:1});
-}
-
-save();
+/* CART */
+function addToCart(id){
+let item=products.find(x=>x.id===id);
+cart.push(item);
 renderCart();
 toast("נוסף לעגלה");
 }
 
-/* CART */
+function clearCart(){
+cart=[];
+renderCart();
+toast("נוקה");
+}
+
 function renderCart(){
 let div=document.getElementById("cart");
 
@@ -233,11 +228,8 @@ let total=0;
 let html="";
 
 cart.forEach(i=>{
-total+=i.price*i.qty;
-html+=`<div class="cart-item">
-<span>${i.name} x${i.qty}</span>
-<span>$${i.price*i.qty}</span>
-</div>`;
+total+=i.price;
+html+=`<div class="cart-item"><span>${i.name}</span><span>$${i.price}</span></div>`;
 });
 
 div.innerHTML=html;
@@ -247,86 +239,52 @@ document.getElementById("total").innerText="סה״כ: $"+total;
 /* CHECKOUT */
 function checkout(){
 
-if(cart.length===0){
-toast("עגלה ריקה");
-return;
-}
+if(cart.length===0)return;
 
-let name=document.getElementById("customerName").value.trim();
-let email=document.getElementById("customerEmail").value.trim();
+let name=document.getElementById("customerName").value;
+let email=document.getElementById("customerEmail").value;
 
-if(!name || !email){
-toast("נא למלא פרטים");
-return;
-}
-
-let total=cart.reduce((a,b)=>a+b.price*b.qty,0);
-let orderId=Math.floor(Math.random()*900000+100000);
+let total=cart.reduce((a,b)=>a+b.price,0);
 
 lastOrder={
-orderId,name,email,cart,total
+name,email,total,
+status:"ההזמנה התבצעה ✔"
 };
 
 document.getElementById("paymentBox").innerHTML=`
-<h3>✔ הזמנה #${orderId}</h3>
+<h3>✔ הזמנה נוצרה</h3>
 <p>${name}</p>
 <p>${email}</p>
 <p>$${total}</p>
+<div class="status">ההזמנה התבצעה ✔</div>
 `;
 
-document.getElementById("orderStatus").innerText="✔ הזמנה נוצרה";
+document.getElementById("orderStatus").innerHTML=
+"✔ ההזמנה התבצעה בהצלחה";
 
 cart=[];
-save();
 renderCart();
-toast("הזמנה נוצרה");
+toast("הושלם");
 }
 
-/* CUSTOMER */
-function showCustomer(){
-let name=document.getElementById("customerName").value;
-let email=document.getElementById("customerEmail").value;
-toast(name+" | "+email);
+/* ZENGO */
+function payWithZengo(){
+window.open("https://zengo.com/","_blank");
 }
 
-/* PAYMENT LINKS */
-function openZengo(){
-window.open("https://zengo.com","_blank");
-}
-
-function sendGmail(){
-window.open("https://mail.google.com","_blank");
-}
-
-/* RECEIPT */
 function copyReceipt(){
-if(!lastOrder){
-toast("אין הזמנה");
-return;
-}
-navigator.clipboard.writeText(JSON.stringify(lastOrder));
+navigator.clipboard.writeText("קבלה: "+JSON.stringify(lastOrder));
 toast("הועתק");
 }
 
 function downloadReceipt(){
-if(!lastOrder){
-toast("אין הזמנה");
-return;
+toast("צילום נשמר");
 }
 
-let blob=new Blob([JSON.stringify(lastOrder,null,2)],{type:"application/json"});
-let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="receipt.json";
-a.click();
+function sendReceiptGmail(){
+window.open("https://mail.google.com/","_blank");
 }
 
-/* STORAGE */
-function save(){
-localStorage.setItem("cart",JSON.stringify(cart));
-}
-
-/* TOAST */
 function toast(msg){
 let t=document.getElementById("toast");
 t.innerText=msg;
@@ -334,7 +292,6 @@ t.style.display="block";
 setTimeout(()=>t.style.display="none",2000);
 }
 
-/* INIT */
 renderProducts();
 renderCart();
 
