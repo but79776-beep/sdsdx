@@ -1,21 +1,30 @@
 <!DOCTYPE html>
-
 <html lang="he" dir="rtl">
 
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crypto Shop</title>
+
+<title>Crypto Shop PRO</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
 body{
-font-family:Arial;
+font-family:Arial,sans-serif;
 background:#07111f;
 color:white;
 min-height:100vh;
 }
+
+/* HEADER */
 
 .header{
 background:linear-gradient(135deg,#2563eb,#1d4ed8);
@@ -25,7 +34,11 @@ font-size:30px;
 font-weight:bold;
 position:sticky;
 top:0;
+z-index:100;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
+
+/* CONTAINER */
 
 .container{
 max-width:1400px;
@@ -36,12 +49,25 @@ grid-template-columns:2fr 1fr;
 gap:20px;
 }
 
+@media(max-width:1000px){
+
+.container{
+grid-template-columns:1fr;
+}
+
+}
+
+/* CARD */
+
 .card{
 background:#111827;
 padding:20px;
 border-radius:20px;
+box-shadow:0 5px 20px rgba(0,0,0,0.3);
 margin-bottom:20px;
 }
+
+/* PRODUCTS */
 
 .products{
 display:grid;
@@ -53,6 +79,11 @@ gap:20px;
 background:#1f2937;
 padding:15px;
 border-radius:18px;
+transition:0.2s;
+}
+
+.product:hover{
+transform:translateY(-4px);
 }
 
 .product img{
@@ -60,239 +91,641 @@ width:100%;
 height:180px;
 object-fit:cover;
 border-radius:12px;
+margin-bottom:10px;
 }
 
-.price{color:#60a5fa;font-size:20px;font-weight:bold;}
+/* TEXT */
+
+.price{
+font-size:24px;
+color:#60a5fa;
+font-weight:bold;
+margin-top:10px;
+}
+
+.badge{
+display:inline-block;
+padding:5px 12px;
+background:#1e3a8a;
+border-radius:20px;
+font-size:12px;
+margin-top:8px;
+}
+
+/* BUTTONS */
 
 button{
-padding:12px;
 border:none;
-border-radius:10px;
+padding:12px;
+border-radius:12px;
 cursor:pointer;
-margin-top:10px;
-width:100%;
+font-weight:bold;
+transition:0.2s;
 }
 
-.buy{background:#2563eb;color:white;}
-.clear{background:#dc2626;color:white;}
-.pay{background:#f59e0b;color:black;}
+button:hover{
+transform:translateY(-2px);
+}
+
+.buy{
+background:#2563eb;
+color:white;
+width:100%;
+margin-top:12px;
+}
+
+.pay{
+background:#f59e0b;
+color:black;
+width:100%;
+margin-top:10px;
+}
+
+.clear{
+background:#dc2626;
+color:white;
+width:100%;
+margin-top:10px;
+}
+
+.remove{
+background:#ef4444;
+color:white;
+padding:8px 10px;
+}
+
+/* CART */
 
 .cart-item{
 display:flex;
 justify-content:space-between;
-padding:10px;
-border-bottom:1px solid #333;
+align-items:center;
+padding:12px 0;
+border-bottom:1px solid #374151;
 }
 
-.total{color:#4ade80;font-size:22px;margin-top:10px;}
+.total{
+font-size:24px;
+margin-top:15px;
+color:#4ade80;
+font-weight:bold;
+}
+
+/* INPUT */
 
 input{
 width:100%;
-padding:12px;
+padding:14px;
 margin-top:10px;
-border-radius:10px;
 border:none;
+border-radius:12px;
 background:#0f172a;
 color:white;
 }
 
-.status{
-margin-top:10px;
+/* PAYMENT */
+
+.qr{
+background:white;
 padding:10px;
-background:#0b2a1a;
-border:1px solid #22c55e;
-border-radius:10px;
-color:#22c55e;
-font-weight:bold;
+border-radius:12px;
+margin-top:15px;
+text-align:center;
 }
 
-.empty{opacity:0.6;text-align:center;padding:10px;}
+/* EMPTY */
+
+.empty{
+padding:20px;
+opacity:0.7;
+text-align:center;
+}
+
+/* TOAST */
 
 .toast{
 position:fixed;
 bottom:20px;
 left:20px;
 background:#2563eb;
-padding:12px;
-border-radius:10px;
+padding:14px 22px;
+border-radius:12px;
 display:none;
+z-index:999;
 }
+
 </style>
+
 </head>
 
 <body>
 
 <div class="header">
-₿ Crypto Shop Dosa
+₿ Crypto Shop PRO
 </div>
 
 <div class="container">
 
 <!-- PRODUCTS -->
+
 <div class="card">
+
 <h2>🛍 מוצרים</h2>
+
+<br>
+
 <div class="products" id="products"></div>
+
 </div>
 
 <!-- SIDEBAR -->
+
 <div>
 
-<div class="card">
-<h2>👤 לקוח</h2>
-<input id="customerName" placeholder="שם מלא">
-<input id="customerEmail" placeholder="אימייל">
-</div>
+<!-- CUSTOMER -->
 
 <div class="card">
+
+<h2>👤 פרטי לקוח</h2>
+
+<input
+type="text"
+id="customerName"
+placeholder="שם מלא">
+
+<input
+type="email"
+id="customerEmail"
+placeholder="אימייל לקוח">
+
+</div>
+
+<!-- CART -->
+
+<div class="card">
+
 <h2>🛒 עגלה</h2>
-<div id="cart"></div>
-<div class="total" id="total">סה״כ: $0</div>
 
-<button class="clear" onclick="clearCart()">נקה עגלה</button>
+<br>
+
+<div id="cart"></div>
+
+<div class="total" id="total">
+סה״כ: $0
 </div>
 
-<!-- STATUS -->
-<div class="card">
-<h2>📦 סטטוס הזמנה</h2>
-<div id="orderStatus" class="empty">אין הזמנה פעילה</div>
+<button class="pay" onclick="checkout()">
+💳 תשלום Bitcoin
+</button>
+
+<button class="clear" onclick="clearCart()">
+🗑 נקה עגלה
+</button>
+
 </div>
 
 <!-- PAYMENT -->
+
 <div class="card">
+
 <h2>₿ תשלום</h2>
 
-<div id="paymentBox">אין תשלום פעיל</div>
+<br>
 
-<button class="buy" onclick="copyReceipt()">📋 קבלה</button>
-<button class="pay" onclick="downloadReceipt()">📸 צילום</button>
-<button class="buy" onclick="sendReceiptGmail()">📧 Gmail</button>
-<button class="pay" onclick="payWithZengo()">🚀 Zengo</button>
-
+<div id="paymentBox">
+אין תשלום פעיל
 </div>
 
 </div>
+
+</div>
+
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- EMAILJS -->
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <script>
 
-let products=[
-{id:1,name:"אוזניות",price:50,img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500"},
-{id:2,name:"מקלדת",price:80,img:"https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500"},
-{id:3,name:"עכבר",price:35,img:"https://images.unsplash.com/photo-1527814050087-3793815479db?w=500"}
+/* EMAILJS INIT */
+
+emailjs.init("PASTE_PUBLIC_KEY_HERE");
+
+/* PRODUCTS */
+
+let products = [
+
+{
+id:1,
+name:"אוזניות גיימינג",
+price:50,
+img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500"
+},
+
+{
+id:2,
+name:"מקלדת RGB",
+price:80,
+img:"https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500"
+},
+
+{
+id:3,
+name:"עכבר מקצועי",
+price:35,
+img:"https://images.unsplash.com/photo-1527814050087-3793815479db?w=500"
+}
+
 ];
 
-let cart=[];
-let lastOrder=null;
+/* STORAGE */
 
-/* RENDER */
+let cart =
+JSON.parse(localStorage.getItem("cart"))
+|| [];
+
+let orders =
+JSON.parse(localStorage.getItem("orders"))
+|| [];
+
+/* TOAST */
+
+function toast(msg){
+
+const t =
+document.getElementById("toast");
+
+t.innerText = msg;
+
+t.style.display = "block";
+
+setTimeout(()=>{
+
+t.style.display = "none";
+
+},2500);
+
+}
+
+/* SAVE */
+
+function saveCart(){
+
+localStorage.setItem(
+"cart",
+JSON.stringify(cart)
+);
+
+}
+
+/* RENDER PRODUCTS */
+
 function renderProducts(){
-let html="";
+
+let html = "";
+
 products.forEach(p=>{
-html+=`
+
+html += `
+
 <div class="product">
+
 <img src="${p.img}">
+
 <h3>${p.name}</h3>
-<div class="price">$${p.price}</div>
-<button class="buy" onclick="addToCart(${p.id})">הוסף</button>
-</div>`;
+
+<div class="badge">
+Bitcoin Accepted
+</div>
+
+<div class="price">
+$${p.price}
+</div>
+
+<button
+class="buy"
+onclick="addToCart(${p.id})">
+
+➕ הוסף לעגלה
+
+</button>
+
+</div>
+
+`;
+
 });
-document.getElementById("products").innerHTML=html;
+
+document.getElementById(
+"products"
+).innerHTML = html;
+
 }
 
-/* CART */
+/* ADD TO CART */
+
 function addToCart(id){
-let item=products.find(x=>x.id===id);
+
+const item =
+products.find(x=>x.id===id);
+
 cart.push(item);
+
+saveCart();
+
 renderCart();
-toast("נוסף לעגלה");
+
+toast("🛒 נוסף לעגלה");
+
 }
+
+/* REMOVE ITEM */
+
+function removeItem(index){
+
+cart.splice(index,1);
+
+saveCart();
+
+renderCart();
+
+toast("🗑 מוצר הוסר");
+
+}
+
+/* CLEAR CART */
 
 function clearCart(){
-cart=[];
+
+cart = [];
+
+saveCart();
+
 renderCart();
-toast("נוקה");
+
+toast("🧹 העגלה נוקתה");
+
 }
+
+/* RENDER CART */
 
 function renderCart(){
-let div=document.getElementById("cart");
+
+const cartDiv =
+document.getElementById("cart");
 
 if(cart.length===0){
-div.innerHTML="<div class='empty'>עגלה ריקה</div>";
-document.getElementById("total").innerText="סה״כ: $0";
+
+cartDiv.innerHTML = `
+<div class="empty">
+עגלה ריקה
+</div>
+`;
+
+document.getElementById(
+"total"
+).innerText = "סה״כ: $0";
+
 return;
+
 }
 
-let total=0;
-let html="";
+let total = 0;
 
-cart.forEach(i=>{
-total+=i.price;
-html+=`<div class="cart-item"><span>${i.name}</span><span>$${i.price}</span></div>`;
+let html = "";
+
+cart.forEach((item,index)=>{
+
+total += item.price;
+
+html += `
+
+<div class="cart-item">
+
+<div>
+
+${item.name}
+
+<br>
+
+$${item.price}
+
+</div>
+
+<button
+class="remove"
+onclick="removeItem(${index})">
+
+✖
+
+</button>
+
+</div>
+
+`;
+
 });
 
-div.innerHTML=html;
-document.getElementById("total").innerText="סה״כ: $"+total;
+cartDiv.innerHTML = html;
+
+document.getElementById(
+"total"
+).innerText =
+"סה״כ: $" + total;
+
 }
 
 /* CHECKOUT */
+
 function checkout(){
 
-if(cart.length===0)return;
+if(cart.length===0){
 
-let name=document.getElementById("customerName").value;
-let email=document.getElementById("customerEmail").value;
+toast("❌ עגלה ריקה");
+return;
 
-let total=cart.reduce((a,b)=>a+b.price,0);
+}
 
-lastOrder={
-name,email,total,
-status:"ההזמנה התבצעה ✔"
+const customerName =
+document.getElementById("customerName")
+.value.trim();
+
+const customerEmail =
+document.getElementById("customerEmail")
+.value.trim();
+
+if(!customerName || !customerEmail){
+
+toast("❌ מלא פרטי לקוח");
+return;
+
+}
+
+let total =
+cart.reduce((a,b)=>a+b.price,0);
+
+let btcRate = 65000;
+
+let btc =
+(total / btcRate).toFixed(6);
+
+const order = {
+
+id:Date.now(),
+
+customerName,
+
+customerEmail,
+
+items:[...cart],
+
+usd:total,
+
+btc,
+
+status:"pending",
+
+date:new Date().toLocaleString("he-IL")
+
 };
 
-document.getElementById("paymentBox").innerHTML=`
-<h3>✔ הזמנה נוצרה</h3>
-<p>${name}</p>
-<p>${email}</p>
-<p>$${total}</p>
-<div class="status">ההזמנה התבצעה ✔</div>
+orders.push(order);
+
+localStorage.setItem(
+"orders",
+JSON.stringify(orders)
+);
+
+/* SEND EMAIL */
+
+sendEmail(order);
+
+/* PAYMENT */
+
+showPayment(order);
+
+/* CLEAR CART */
+
+cart = [];
+
+saveCart();
+
+renderCart();
+
+}
+
+/* SEND EMAIL */
+
+function sendEmail(order){
+
+emailjs.send(
+
+"PASTE_SERVICE_ID",
+"PASTE_TEMPLATE_ID",
+
+{
+
+customer_name:
+order.customerName,
+
+customer_email:
+order.customerEmail,
+
+total:
+order.usd,
+
+btc:
+order.btc,
+
+date:
+order.date,
+
+admin_email:
+"dos1a@outlook.co.il"
+
+}
+
+)
+
+.then(()=>{
+
+toast("📧 אימייל הזמנה נשלח");
+
+})
+
+.catch((error)=>{
+
+console.log(error);
+
+toast("❌ שגיאה בשליחת מייל");
+
+});
+
+}
+
+/* PAYMENT */
+
+function showPayment(order){
+
+document.getElementById(
+"paymentBox"
+).innerHTML = `
+
+<h3>
+✅ הזמנה נוצרה
+</h3>
+
+<br>
+
+<p>
+👤 ${order.customerName}
+</p>
+
+<p>
+📧 ${order.customerEmail}
+</p>
+
+<p>
+💵 USD: $${order.usd}
+</p>
+
+<p>
+₿ BTC: ${order.btc}
+</p>
+
+<br>
+
+<div class="badge">
+ממתין לתשלום
+</div>
+
+<div class="qr">
+
+<img
+src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=bitcoin:bc1qexampleaddress123456"
+width="180">
+
+</div>
+
+<br>
+
+<div style="word-break:break-all">
+
+bc1qexampleaddress123456
+
+</div>
+
 `;
 
-document.getElementById("orderStatus").innerHTML=
-"✔ ההזמנה התבצעה בהצלחה";
-
-cart=[];
-renderCart();
-toast("הושלם");
 }
 
-/* ZENGO */
-function payWithZengo(){
-window.open("https://zengo.com/","_blank");
-}
-
-function copyReceipt(){
-navigator.clipboard.writeText("קבלה: "+JSON.stringify(lastOrder));
-toast("הועתק");
-}
-
-function downloadReceipt(){
-toast("צילום נשמר");
-}
-
-function sendReceiptGmail(){
-window.open("https://mail.google.com/","_blank");
-}
-
-function toast(msg){
-let t=document.getElementById("toast");
-t.innerText=msg;
-t.style.display="block";
-setTimeout(()=>t.style.display="none",2000);
-}
+/* INIT */
 
 renderProducts();
+
 renderCart();
 
 </script>
